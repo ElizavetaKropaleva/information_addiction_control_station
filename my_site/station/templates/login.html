@@ -1,0 +1,74 @@
+<!-- HTML-код страницы авторизации пользователя -->
+
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <!-- CSS only -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <!-- JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+        <title>Вход в систему</title>
+        <style type="text/css">
+            body {
+                font-family: 'Century Gothic';
+            }
+            .navbar-b {
+                background: linear-gradient(360deg, #B1A296, #FFFFFF);
+             }
+            .navbar-t {
+                background: linear-gradient(360deg, #FFFFFF, #B1A296);
+            }
+            .btn {
+                background: #B1A296;
+                border: none;
+            }
+            h1 {
+                font-size: 60pt;
+            }
+            p {
+                font-size: 30pt;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar-t fixed-top p-3 pb-5 d-flex align-items-center justify-content-center">
+            <div><h1 style="color: #ffffff">Вход в систему</h1></div>
+        </nav>
+        {% load static %}
+        {% block content %}
+        <div class="p-5 mt-5">
+            <div class="p-5 mt-5">
+                <div class="p-5">
+                    <div class="p-5">
+                        <div class="container p-3">
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="username" class="form-label"><h3>Имя пользователя</h3></label>
+                                    <input type="text" class="form-control" id="username" name="username">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label"><h3>Пароль</h3></label>
+                                    <input type="password" class="form-control" id="password" name="password">
+                                </div>
+                                {% if login_error %}
+                                    <div class="mb-3 text-danger">
+                                        <label class="error"><h5>{{ login_error }}</h5></label>
+                                    </div>
+                                {% endif %}
+                                    <div class="text-center pt-3">
+                                        <button type="submit" class="btn btn-light btn-lg"><h3>Войти</h3></button>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+        <nav class="navbar-b fixed-bottom p-3 pt-5 d-flex align-items-center justify-content-center">
+            <div><h3 style="color: #ffffff">Станция для борьбы с информационной зависимостью</h3></div>
+        </nav>
+    </body>
+</html>
