@@ -51,15 +51,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'station:home' %}" style="color: #ffffff"><h1>Текущее состояние станции</h1></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'station:data_addition' %}" style="color: #ffffff"><h1>Дополнение данных</h1></a>
-                </li>
+                {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'station:data_addition' %}" style="color: #ffffff"><h1>Дополнение данных</h1></a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'station:statistics' %}" style="color: #ffffff"><h1>Статистика</h1></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#"><h1>Загрузка данных</h1></a>
-                </li>
+                {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#"><h1>Загрузка данных</h1></a>
+                    </li>
+                {% endif %}
             </ul>
             {% if user %}
                 <a href="{% url 'station:logout' %}" class="btn btn-outline-light btn-lg m-2 mt-0" role="button">&nbsp;&nbsp;&nbsp;Выйти&nbsp;&nbsp;&nbsp;</a>
@@ -76,7 +80,11 @@
                     <input type="file" name="data_file">
                     <button type="submit">Загрузить</button>
                 </form>
-
+                {% if error %}
+                    <div class="mb-3 text-danger">
+                        <label class="error"><h5>{{ error }}</h5></label>
+                    </div>
+                {% endif %}
                 {% if uploaded_file_url %}
                 <br><p align="center">Загружен следующий файл: {{ uploaded_file_url }}</p>
                 {% endif %}

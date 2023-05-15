@@ -51,15 +51,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'station:home' %}" style="color: #ffffff"><h1>Текущее состояние станции</h1></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'station:data_addition' %}" style="color: #ffffff"><h1>Дополнение данных</h1></a>
-                </li>
+                {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'station:data_addition' %}" style="color: #ffffff"><h1>Дополнение данных</h1></a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#"><h1>Статистика</h1></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'station:loading_data' %}" style="color: #ffffff"><h1>Загрузка данных</h1></a>
-                </li>
+                {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'station:loading_data' %}" style="color: #ffffff"><h1>Загрузка данных</h1></a>
+                    </li>
+                {% endif %}
             </ul>
             {% if user %}
                 <a href="{% url 'station:logout' %}" class="btn btn-outline-light btn-lg m-2 mt-0" role="button">&nbsp;&nbsp;&nbsp;Выйти&nbsp;&nbsp;&nbsp;</a>
@@ -69,12 +73,11 @@
         </div>
         {% load static %}
         {% block content %}
-        {% if user %}
             <div class="upload">
                 <form method="post" action="">
                     {% csrf_token %}
                     <select class="form-select form-select-lg mb-3" aria-label="" id="inputSlot" name="inputSlot">
-                        <option selected>Выберете слот</option>
+                        <option selected>Выберите слот</option>
                         <option value="1">Слот 1</option>
                         <option value="2">Слот 2</option>
                         <option value="3">Слот 3</option>
@@ -82,6 +85,11 @@
                         <option value="5">Слот 5</option>
                         <option value="6">Слот 6</option>
                     </select>
+                    {% if slot_error %}
+                        <div class="mb-3 text-danger">
+                            <label class="error"><h5>{{ slot_error }}</h5></label>
+                        </div>
+                    {% endif %}
                     <div class="row g-3 align-items-center mb-3">
                         <div class="col-auto">
                             <label for="inputFirstDate" class="col-form-label">С</label>
@@ -96,20 +104,16 @@
                             <input type="date" class="form-control" id="inputSecondDate" name="inputSecondDate" placeholder="Дата" value="non">
                         </div>
                     </div>
+                    {% if error %}
+                        <div class="mb-3 text-danger">
+                            <label class="error"><h5>{{ error }}</h5></label>
+                        </div>
+                    {% endif %}
                     <div class="text-center pt-3">
                         <button type="submit">Получить статистику</button>
                     </div>
                 </form>
             </div>
-        {% else %}
-            <div class="p-5 mt-5">
-                <div class="p-5 mt-5">
-                    <div class="p-5 mt-5">
-                        <h1 class = 'text-center'>Чтобы увидеть содержимое страницы <a href="{% url 'station:login' %}"> войдите</a> в систему.</h1>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
         <nav class="navbar-b fixed-bottom p-3 pt-5 d-flex align-items-center justify-content-center">
             <div><h3 style="color: #ffffff">Станция для борьбы с информационной зависимостью</h3></div>
         </nav>
