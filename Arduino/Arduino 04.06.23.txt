@@ -1,0 +1,325 @@
+#include <Wire.h>    // Подключаем библиотеку для работы с аппаратной шиной I2C.
+#include <iarduino_I2C_4LED.h>   // Подключаем библиотеку для работы с индикатором I2C-flash.
+#include <SoftwareSerial.h> // Подключаем библиотеку для работы с NodeMCU.
+#define station_id "0001" // Объявляем id станции. 
+SoftwareSerial esp8266(2, 3); //RX, TX. Объявляем Serial для работы с NodeMCU.
+iarduino_I2C_4LED dispLED1(0x0A); // Объявляем объекты dispLED для работы с функциями и методами библиотеки iarduino_I2C_4LED, указывая адрес модуля на шине I2C. Адреса модулей в HEX идут от A до F включительно.
+iarduino_I2C_4LED dispLED2(0x0D); 
+iarduino_I2C_4LED dispLED3(0x0E);
+iarduino_I2C_4LED dispLED4(0x0B);
+iarduino_I2C_4LED dispLED5(0x0C);
+iarduino_I2C_4LED dispLED6(0x0F); 
+const int button_pin1 = 5;  // Объявляем пины, в которые подключены кнопки.
+const int button_pin2 = 7;  // В данной схеме можно использовать любые цифровые пины, кроме пинов 0, 1, 2, 3.
+const int button_pin3 = 8;
+const int button_pin4 = 9;
+const int button_pin5 = 11;
+const int button_pin6 = 13;
+int Mink1 = 0;  // Переменные для запоминания времени нажатия на кнопку
+int Seck1 = 0; 
+int Hourk1 = 0; 
+int k1 = 1;
+int Mink2 = 0;  
+int Seck2 = 0; 
+int Hourk2 = 0;  
+int k2 = 1; 
+int Mink3 = 0;  
+int Seck3 = 0; 
+int Hourk3 = 0;  
+int k3 = 1; 
+int Mink4 = 0;  
+int Seck4 = 0; 
+int Hourk4 = 0;  
+int k4 = 1;
+int Mink5 = 0;  
+int Seck5 = 0;
+int Hourk5 = 0;   
+int k5 = 1;
+int Mink6 = 0;  
+int Seck6 = 0; 
+int Hourk6 = 0;  
+int k6 = 1;
+String Result = "";
+
+// Задание начальных параметров схемы.                                                        
+void setup(){  
+     Serial.begin(115200);      
+     esp8266.begin(115200);  // Подключаем Serial для работы с NodeMCU.                         
+     dispLED1.begin();         // Инициируем работу с индикаторами.
+     dispLED1.blink(0,true); 
+     dispLED2.begin();         
+     dispLED2.blink(0,true);
+     dispLED3.begin();         
+     dispLED3.blink(0,true); 
+     dispLED4.begin();         
+     dispLED4.blink(0,true); 
+     dispLED5.begin();         
+     dispLED5.blink(0,true); 
+     dispLED6.begin();         
+     dispLED6.blink(0,true); 
+     pinMode(button_pin1, INPUT_PULLUP); // Используем подтяжку на кнопки.
+     pinMode(button_pin2, INPUT_PULLUP);
+     pinMode(button_pin3, INPUT_PULLUP);
+     pinMode(button_pin4, INPUT_PULLUP);
+     pinMode(button_pin5, INPUT_PULLUP);
+     pinMode(button_pin6, INPUT_PULLUP);
+}                                                         
+                                                          
+void loop(){                                              
+     uint32_t sec = millis() / 1000ul; // Локальные часы. Время отсчитывается с момента начала выполнения программы.
+     int timeHours = (sec / 3600ul);
+     int timeMins = (sec % 3600ul) / 60ul;
+     int timeSecs = (sec % 3600ul) % 60ul;  
+     int ButtonState1 = digitalRead(button_pin1); // Переменные для хранения состояний кнопки.
+     int ButtonState2 = digitalRead(button_pin2);
+     int ButtonState3 = digitalRead(button_pin3);
+     int ButtonState4 = digitalRead(button_pin4); 
+     int ButtonState5 = digitalRead(button_pin5);
+     int ButtonState6 = digitalRead(button_pin6);   
+     if (ButtonState1 == LOW) // Если кнопка нажата
+     {       
+          if (k1 == 1)     // Запоминаем время нажатия на кнопку. Если момент времени уже записан, то этот шаг пропускается.
+          {
+          Seck1 = timeSecs;
+          Mink1 = timeMins;
+          Hourk1 = timeHours;
+          k1 = k1 + 1;
+          }       
+       if (timeSecs < Seck1) // Условие для правильного подсчета разницы времени между текущим значением локальных часов и момента времени, когда кнопка была нажата.
+       {      
+          dispLED1.print((timeMins-Mink1-1), (60 - Seck1 + timeSecs), TIME);   // Вывод текущего времени подключения на дисплей. 
+       }
+        else 
+        {
+          dispLED1.print((timeMins-Mink1), (timeSecs - Seck1), TIME);     
+         }              
+       }    
+     else   // Кнопка отжата
+     {
+       dispLED1.clear();   // Отключение индикатора.
+       if (k1!=1) 
+       {
+        if (timeSecs < Seck1) 
+          {
+          Result = "S/N " + String(station_id) + " Slot#1 " + String(timeHours-Hourk1) + ":" + String(timeMins - Mink1 - 1) + ":" + String(60 - Seck1 + timeSecs);
+          esp8266.print(Result); 
+          Result = "";   
+          }
+       else
+       {
+          Result = "S/N " + String(station_id) + " Slot#1 " + String(timeHours-Hourk1) + ":" + String(timeMins - Mink1) + ":" + String(timeSecs - Seck1);
+          esp8266.print(Result);
+          Result = "";
+       }
+       }
+       Mink1 = 0;  // Возврат начальных значений переменным после отжатия кнопки
+       Seck1 = 0; 
+       Hourk1 = 0; 
+       k1 = 1;      
+     }  
+    if (ButtonState2 == LOW) 
+     {       
+          if (k2 == 1)    
+          {
+          Seck2 = timeSecs;
+          Mink2 = timeMins;
+          Hourk2 = timeHours;
+          k2 = k2 + 1;
+          }       
+       if (timeSecs < Seck2) 
+       {      
+          dispLED2.print((timeMins-Mink2-1), (60 - Seck2 + timeSecs), TIME);   
+       }
+        else 
+        {
+          dispLED2.print((timeMins-Mink2), (timeSecs - Seck2), TIME);     
+         }              
+       }    
+     else   
+     {
+       dispLED2.clear();   
+       if (k2!=1) 
+       {
+        if (timeSecs < Seck2) 
+          {
+            Result = "S/N " + String(station_id) + " Slot#2 " + String(timeHours - Hourk2) + ":" + String(timeMins - Mink2 - 1) + ":" + String(60 - Seck2 + timeSecs);
+            esp8266.print(Result);
+            Result = "";
+          }
+       else
+       {
+            Result = "S/N " + String(station_id) + " Slot#2 " + String(timeHours - Hourk2) + ":" + String(timeMins - Mink2) + ":" + String(timeSecs - Seck2);
+            esp8266.print(Result);
+            Result = "";
+       }
+       }
+       Mink2 = 0;  
+       Seck2 = 0;  
+       Hourk2 = 0;
+       k2 = 1;      
+     } 
+     if (ButtonState3 == LOW) 
+     {       
+          if (k3 == 1)     
+          {
+          Seck3 = timeSecs;
+          Mink3 = timeMins;
+          Hourk3 = timeHours;
+          k3 = k3 + 1;
+          }       
+       if (timeSecs < Seck3) 
+       {      
+          dispLED3.print((timeMins-Mink3-1), (60 - Seck3 + timeSecs), TIME);     
+       }
+        else 
+        {
+          dispLED3.print((timeMins-Mink3), (timeSecs - Seck3), TIME);     
+         }              
+       }    
+     else   
+     {
+       dispLED3.clear();   
+       if (k3!=1) 
+       {
+        if (timeSecs < Seck3) 
+          {
+            Result = "S/N " + String(station_id) + " Slot#3 " + String(timeHours-Hourk3) + ":" + String(timeMins - Mink3 - 1) + ":" + String(60 - Seck3 + timeSecs);
+            esp8266.print(Result);
+            Result = "";   
+          }
+       else
+       {
+            Result = "S/N " + String(station_id) + " Slot#3 " + String(timeHours-Hourk3) + ":" + String(timeMins - Mink3) + ":" + String(timeSecs - Seck3);
+            esp8266.print(Result);
+            Result = "";
+       }
+       }
+       Mink3 = 0;  
+       Seck3 = 0; 
+       Hourk3 = 0; 
+       k3 = 1;      
+     }
+      if (ButtonState4 == LOW) 
+     {       
+          if (k4 == 1)    
+          {
+          Seck4 = timeSecs;
+          Mink4 = timeMins;
+          Hourk4 = timeHours;          
+          k4 = k4 + 1;
+          }       
+       if (timeSecs < Seck4) 
+       {      
+          dispLED4.print((timeMins-Mink4-1), (60 - Seck4 + timeSecs), TIME);  
+       }
+        else 
+        {
+          dispLED4.print((timeMins-Mink4), (timeSecs - Seck4), TIME);     
+         }             
+       }    
+     else   
+     {
+       dispLED4.clear();   
+       if (k4!=1) 
+       {
+        if (timeSecs < Seck4) 
+          {
+            Result = "S/N " + String(station_id) + " Slot#4 " + String(timeHours-Hourk4) + ":" + String(timeMins - Mink4 - 1) + ":" + String(60 - Seck4 + timeSecs);
+            esp8266.print(Result);
+            Result = "";
+          }
+       else
+       {
+            Result = "S/N " + String(station_id) + " Slot#4 " + String(timeHours-Hourk4) + ":" + String(timeMins - Mink4) + ":" + String(timeSecs - Seck4);
+            esp8266.print(Result);
+            Result = "";
+       }
+       }
+       Mink4 = 0;  // Возврат начальных значений переменным после отжатия кнопки
+       Seck4 = 0;
+       Hourk4 = 0;  
+       k4 = 1;      
+     } 
+      if (ButtonState5 == LOW) 
+     {       
+          if (k5 == 1)   
+          {
+          Seck5 = timeSecs;
+          Mink5 = timeMins;
+          Hourk5 = timeHours;
+          k5 = k5 + 1;
+          }       
+       if (timeSecs < Seck5)  
+       {      
+          dispLED5.print((timeMins-Mink5-1), (60 - Seck5 + timeSecs), TIME);   
+       }
+        else 
+        {
+          dispLED5.print((timeMins-Mink5), (timeSecs - Seck5), TIME);     
+         }              
+       }    
+     else   
+     {
+       dispLED5.clear();   
+       if (k5!=1) 
+       {
+        if (timeSecs < Seck5) 
+          {
+            Result = "S/N " + String(station_id) + " Slot#5 " + String(timeHours-Hourk5) + ":" + String(timeMins - Mink5 - 1) + ":" + String(60 - Seck5 + timeSecs);
+            esp8266.print(Result);
+            Result = "";
+          }
+       else
+       {
+            Result = "S/N " + String(station_id) + " Slot#5 " + String(timeHours-Hourk5) + ":" + String(timeMins - Mink5) + ":" + String(timeSecs - Seck5);
+            esp8266.print(Result);
+            Result = "";
+       }
+       }
+       Mink5 = 0; 
+       Seck5 = 0;
+       Hourk5 = 0;  
+       k5 = 1;      
+     }   
+     if (ButtonState6 == LOW) 
+     {       
+          if (k6 == 1)    
+          {
+          Seck6 = timeSecs;
+          Mink6 = timeMins;
+          Hourk6 = timeHours;
+          k6 = k6 + 1;
+          }       
+       if (timeSecs < Seck6) 
+       {      
+          dispLED6.print((timeMins-Mink6-1), (60 - Seck6 + timeSecs), TIME);  
+       }
+        else 
+        {
+          dispLED6.print((timeMins-Mink6), (timeSecs - Seck6), TIME);     
+         }              
+       }    
+     else   
+     {
+       dispLED6.clear();   
+       if (k6!=1) 
+       {
+        if (timeSecs < Seck6) 
+          {
+            Result = "S/N " + String(station_id) + " Slot#6 " + String(timeHours-Hourk6) + ":" + String(timeMins - Mink6 - 1) + ":" + String(60 - Seck6 + timeSecs);
+            esp8266.print(Result);
+            Result = "";
+          }
+       else
+       {
+            Result = "S/N " + String(station_id) + " Slot#6 " + String(timeHours-Hourk6) + ":" + String(timeMins - Mink6) + ":" + String(timeSecs - Seck6);
+            esp8266.print(Result);
+            Result = "";
+       }
+       }
+       Mink6 = 0;  
+       Seck6 = 0;
+       Hourk6 = 0;  
+       k6 = 1;      
+     }            
+} 
